@@ -1,9 +1,9 @@
-#include "PlayerController.h"
+// Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "Kismet/GameplayStatics.h"
+#include "ThreeMatchPlayerController.h"
+#include "ThreeMatchGame.h"
 
-
-AMPlayerController::AMPlayerController(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
+AThreeMatchPlayerController::AThreeMatchPlayerController(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// We want the mouse cursor to show immediately on startup, without having to click in the window.
 	bShowMouseCursor = true;
@@ -15,7 +15,7 @@ AMPlayerController::AMPlayerController(const FObjectInitializer& ObjectInitializ
 	ScoreChangeRate = 375.0f;
 }
 
-void AMPlayerController::AddScore(int32 Points, bool bForceImmediateUpdate)
+void AThreeMatchPlayerController::AddScore(int32 Points, bool bForceImmediateUpdate)
 {
 	Score += Points;
 	if (bForceImmediateUpdate)
@@ -24,26 +24,26 @@ void AMPlayerController::AddScore(int32 Points, bool bForceImmediateUpdate)
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(TickScoreDisplayHandle, this, &AMPlayerController::TickScoreDisplay, 0.001f, true);
+		GetWorldTimerManager().SetTimer(TickScoreDisplayHandle, this, &AThreeMatchPlayerController::TickScoreDisplay, 0.001f, true);
 	}
 }
 
-int32 AMPlayerController::GetScore()
+int32 AThreeMatchPlayerController::GetScore()
 {
 	return Score;
 }
 
-int32 AMPlayerController::GetDisplayedScore()
+int32 AThreeMatchPlayerController::GetDisplayedScore()
 {
 	return (int32)DisplayedScore;
 }
 
-int32 AMPlayerController::CalculateBombPower_Implementation()
+int32 AThreeMatchPlayerController::CalculateBombPower_Implementation()
 {
 	return 0;
 }
 
-void AMPlayerController::TickScoreDisplay()
+void AThreeMatchPlayerController::TickScoreDisplay()
 {
 	// This assumes score only goes up, or instantly drops when it is decreased.
 	DisplayedScore += UGameplayStatics::GetWorldDeltaSeconds(this) * ScoreChangeRate;

@@ -1,8 +1,12 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #pragma once
+
 #include "GameFramework/SaveGame.h"
+#include "ThreeMatchSaveGame.generated.h"
 
 USTRUCT(BlueprintType)
-struct FSaveData
+struct FThreeMatchLevelSaveData
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -23,8 +27,11 @@ struct FSaveData
 	int32 TopScore;
 };
 
+/**
+ * 
+ */
 UCLASS()
-class MATCH_API UMSaveGame : public USaveGame
+class THREEMATCHGAME_API UThreeMatchSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 
@@ -37,9 +44,9 @@ public:
 	*	@see UGameplayStatics::DeleteGameInSlot
 	*/
 
-	/** Complete list of levels played in Match3 mode. */
+	/** Complete list of levels played in ThreeMatch mode. */
 	UPROPERTY()
-	TMap<FString, FSaveData> SaveData;
+	TMap<FString, FThreeMatchLevelSaveData> ThreeMatchSaveData;
 
 
 	//~
@@ -57,5 +64,5 @@ public:
 
 protected:
 	UPROPERTY()
-	TMap<FString, int32> CustomIntData;
+	TMap<FString, int32> ThreeMatchCustomIntData;
 };

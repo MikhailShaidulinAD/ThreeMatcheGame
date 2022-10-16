@@ -1,9 +1,16 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #pragma once
-#include "SaveGame.h"
+
 #include "GameFramework/GameModeBase.h"
+#include "Blueprint/UserWidget.h"
+#include "Tile.h"
+#include "Grid.h"
+#include "ThreeMatchSaveGame.h"
+#include "ThreeMatchGameMode.generated.h"
 
 USTRUCT(BlueprintType)
-struct FMatch3Reward
+struct FThreeMatchReward
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -16,13 +23,17 @@ struct FMatch3Reward
 	float TimeAwarded;
 };
 
+
+/**
+ * 
+ */
 UCLASS()
-class MATCH3_API AMGameMode : public AGameModeBase
+class THREEMATCHGAME_API AThreeMatchGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	AMGameMode(const FObjectInitializer& ObjectInitializer);
+	AThreeMatchGameMode(const FObjectInitializer& ObjectInitializer);
 
 	/** Called when the game starts. */
 	virtual void BeginPlay() override;
@@ -35,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	float TileMoveSpeed;
 
-		/** Function to call when starting a new Match3 game. */
+	/** Function to call when starting a new ThreeMatch game. */
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void GameRestart();
 
@@ -53,7 +64,7 @@ public:
 
 	/** Rewards that happen at intervals during the game. */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Game")
-	TArray<FMatch3Reward> Rewards;
+	TArray<FThreeMatchReward> Rewards;
 
 	/** Get remaining game time. */
 	UFUNCTION(BlueprintCallable, Category = "Game")
@@ -85,7 +96,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game")
 	int32 GetMaxComboPower();
 
-	/** Bomb power request (current) - susceptible to BP overriding by the Match3PlayerController. */
+	/** Bomb power request (current) - susceptible to BP overriding by the ThreeMatchPlayerController. */
 	UFUNCTION(BlueprintNativeEvent, Category = "Game")
 	int32 CalculateBombPower();
 	virtual int32 CalculateBombPower_Implementation();
@@ -100,7 +111,7 @@ public:
 public:
 	/** Current data being saved/loaded. Held as a UPROPERTY for GC reasons. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FSaveData SaveGameData;
+	FThreeMatchLevelSaveData SaveGameData;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Score")
 	int32 FinalPlace;
@@ -129,4 +140,6 @@ protected:
 	FTimerHandle GameOverTimer;
 
 	bool bGameWillBeWon;
+
+
 };

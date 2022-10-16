@@ -1,20 +1,22 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #pragma once
 
 #include "Engine/GameInstance.h"
-#include "GameMode.h"
-#include "GameInstance.generated.h"
+#include "ThreeMatchGameMode.h"
+#include "ThreeMatchGameInstance.generated.h"
 
 
 /**
  * 
  */
 UCLASS()
-class MATCH_API UMGameInstance : public UGameInstance
+class THREEMATCHGAME_API UThreeMatchGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 public:
 
-	UMGameInstance();
+	UThreeMatchGameInstance();
 
 	// Called by the game at startup.
 	void Init() override;
@@ -26,7 +28,7 @@ public:
 	void InitSaveGameSlot();
 
 	/** Load the current saved game, if it exists. */
-	bool FindSaveDataForLevel(UObject* WorldContextObject, FSaveData& OutSaveData);
+	bool FindSaveDataForLevel(UObject* WorldContextObject, FThreeMatchLevelSaveData& OutSaveData);
 
 	/** Save our game. All save game data is included. */
 	UFUNCTION(BlueprintCallable, Category = "Saved Game")
@@ -44,8 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Saved Game")
 	void ClearCustomInt(FString FieldName);
 
-	/** Create or update the saved data for a specific Match3 level. */
-	void UpdateSave(UObject* WorldContextObject, FSaveData& NewData);
+	/** Create or update the saved data for a specific ThreeMatch level. */
+	void UpdateSave(UObject* WorldContextObject, FThreeMatchLevelSaveData& NewData);
 
 	/** Event for refreshing the UI after save games are updated */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -53,7 +55,7 @@ public:
 
 	/** Combined save game data for all levels/modes. */
 	UPROPERTY()
-	class UMatch3SaveGame* InstanceGameData;
+	class UThreeMatchSaveGame* InstanceGameData;
 
 	// Should be called by blueprints when the user's ID changes, such as by logging in or out via the game's blueprint menu system.
 	UFUNCTION(BlueprintCallable, Category = "Online")
@@ -97,4 +99,3 @@ private:
 	FDelegateHandle ViewportHandle;
 	FDelegateHandle UnexpectedPurchaseHandle;
 };
-

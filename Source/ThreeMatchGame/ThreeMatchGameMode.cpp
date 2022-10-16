@@ -1,34 +1,34 @@
-#include "GameMode.h"
+// Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "Match.h"
+#include "ThreeMatchGameMode.h"
+#include "ThreeMatchGameInstance.h"
+#include "ThreeMatchSaveGame.h"
+#include "ThreeMatchGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
-#include "GameMode.h"
-#include "PlayerController.h"
-#include "GameInstance.h"
-#include "SaveGame.h"
-#include "Blueprint/UserWidget.h"
+#include "ThreeMatchPlayerController.h"
 
-AMGameMode::AMGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+
+AThreeMatchGameMode::AThreeMatchGameMode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	DefaultPawnClass =  APawn::StaticClass();
-	PlayerControllerClass = AMPlayerController::StaticClass();
+	PlayerControllerClass = AThreeMatchPlayerController::StaticClass();
 	TileMoveSpeed = 50.0f;
 	TimeRemaining = 5.0f;
 	FinalPlace = 0;
 }
 
-void AMGameMode::BeginPlay()
+void AThreeMatchGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	bGameWillBeWon = false;
 	ChangeMenuWidget(StartingWidgetClass);
-	GetWorldTimerManager().SetTimer(GameOverTimer, this, &AMGameMode::GameOver, TimeRemaining, false);
+	GetWorldTimerManager().SetTimer(GameOverTimer, this, &AThreeMatchGameMode::GameOver, TimeRemaining, false);
 
 	// Get our current save data from the game instance.
-	UMGameInstance* GameInstance = Cast<UMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	UThreeMatchGameInstance* GameInstance = Cast<UThreeMatchGameInstance>(UGameplayStatics::GetGameInstance(this));
 	if (GameInstance)
 	{
 		// If we didn't already have save data, put our defaults into the main array. We'll save it later, if anything noteworthy happens.
@@ -39,22 +39,22 @@ void AMGameMode::BeginPlay()
 	}
 }
 
-void AMGameMode::GameRestart()
+void AThreeMatchGameMode::GameRestart()
 {
 	ChangeMenuWidget(nullptr);
 	FName LevelName(*UGameplayStatics::GetCurrentLevelName(this, true));
 	UGameplayStatics::OpenLevel(this, LevelName);
 }
 
-void AMGameMode::GameOver()
+void AThreeMatchGameMode::GameOver()
 {
 	GetWorldTimerManager().ClearTimer(GameOverTimer);
 
 	if (bGameWillBeWon)
 	{
-		UMGameInstance* GameInstance = Cast<UMGameInstance>(UGameplayStatics::GetGameInstance(this));
+		UThreeMatchGameInstance* GameInstance = Cast<UThreeMatchGameInstance>(UGameplayStatics::GetGameInstance(this));
 		// Check for top score
-		if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+		if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 		{
 			SaveGameData.TopScore = FMath::Max(PC->GetScore(), SaveGameData.TopScore);
 		}
@@ -66,14 +66,14 @@ void AMGameMode::GameOver()
 	GameWasWon(bGameWillBeWon);
 }
 
-bool AMGameMode::IsGameActive() const
+bool AThreeMatchGameMode::IsGameActive() const
 {
 	// Game is active whenever time hasn't run out or the timer is paused.
 	FTimerManager& WorldTimerManager = GetWorldTimerManager();
 	return (WorldTimerManager.IsTimerActive(GameOverTimer) || WorldTimerManager.IsTimerPaused(GameOverTimer));
 }
 
-void AMGameMode::PauseGameTimer(bool bPause)
+void AThreeMatchGameMode::PauseGameTimer(bool bPause)
 {
 	if (bPause)
 	{
@@ -85,21 +85,21 @@ void AMGameMode::PauseGameTimer(bool bPause)
 	}
 }
 
-FString AMGameMode::GetRemainingTimeAsString()
+FString AThreeMatchGameMode::GetRemainingTimeAsString()
 {
 	int32 OutInt = FMath::CeilToInt(GetWorldTimerManager().GetTimerRemaining(GameOverTimer));
 	return FString::Printf(TEXT("%03i"), FMath::Max(0, OutInt));
 }
 
 
-bool AMGameMode::GetTimerPaused()
+bool AThreeMatchGameMode::GetTimerPaused()
 {
 	return GetWorldTimerManager().IsTimerPaused(GameOverTimer);
 }
 
-void AMGameMode::AddScore(int32 Points)
+void AThreeMatchGameMode::AddScore(int32 Points)
 {
-	if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+	if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 	{
 		int32 OldScore = PC->GetScore();
 		PC->AddScore(Points);
@@ -131,7 +131,7 @@ void AMGameMode::AddScore(int32 Points)
 			AwardPlace(0, Points);
 		}
 		
-		for (const FMatch3Reward& Reward : Rewards)
+		for (const FThreeMatchReward& Reward : Rewards)
 		{
 			check(Reward.ScoreInterval > 0);
 			// Integer division to decide if we've crossed a bonus threshold
@@ -141,7 +141,7 @@ void AMGameMode::AddScore(int32 Points)
 				float StartingTimeValue = GetWorldTimerManager().GetTimerRemaining(GameOverTimer);
 				if (StartingTimeValue >= 0.0f)
 				{
-					GetWorldTimerManager().SetTimer(GameOverTimer, this, &AMGameMode::GameOver, StartingTimeValue + (ScoreAwardCount * Reward.TimeAwarded), false);
+					GetWorldTimerManager().SetTimer(GameOverTimer, this, &AThreeMatchGameMode::GameOver, StartingTimeValue + (ScoreAwardCount * Reward.TimeAwarded), false);
 					AwardBonus();
 				}
 			}
@@ -149,9 +149,9 @@ void AMGameMode::AddScore(int32 Points)
 	}
 }
 
-void AMGameMode::UpdateScoresFromLeaderBoard(int32 GoldScore, int32 SilverScore, int32 BronzeScore)
+void AThreeMatchGameMode::UpdateScoresFromLeaderBoard(int32 GoldScore, int32 SilverScore, int32 BronzeScore)
 {
-	UMGameInstance* GameInstance = Cast<UMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	UThreeMatchGameInstance* GameInstance = Cast<UThreeMatchGameInstance>(UGameplayStatics::GetGameInstance(this));
 	
 	SaveGameData.BronzeScore = BronzeScore;
 	SaveGameData.SilverScore = SilverScore;
@@ -160,42 +160,42 @@ void AMGameMode::UpdateScoresFromLeaderBoard(int32 GoldScore, int32 SilverScore,
 	GameInstance->SaveGame();
 }
 
-void AMGameMode::SetComboPower(int32 NewComboPower)
+void AThreeMatchGameMode::SetComboPower(int32 NewComboPower)
 {
-	if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+	if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 	{
 		PC->ComboPower = NewComboPower;
 	}
 }
 
-int32 AMGameMode::GetComboPower()
+int32 AThreeMatchGameMode::GetComboPower()
 {
-	if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+	if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 	{
 		return PC->ComboPower;
 	}
 	return 0;
 }
 
-int32 AMGameMode::GetMaxComboPower()
+int32 AThreeMatchGameMode::GetMaxComboPower()
 {
-	if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+	if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 	{
 		return PC->MaxComboPower;
 	}
 	return 0;
 }
 
-int32 AMGameMode::CalculateBombPower_Implementation()
+int32 AThreeMatchGameMode::CalculateBombPower_Implementation()
 {
-	if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+	if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 	{
 		return PC->CalculateBombPower();
 	}
 	return 0;
 }
 
-void AMGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)
+void AThreeMatchGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)
 {
 	if (CurrentWidget)
 	{
@@ -204,7 +204,7 @@ void AMGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)
 	}
 	if (NewWidgetClass)
 	{
-		if (AMPlayerController* PC = Cast<AMPlayerController>(UMBlueprintFunctionLibrary::GetLocalPlayerController(this)))
+		if (AThreeMatchPlayerController* PC = Cast<AThreeMatchPlayerController>(UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(this)))
 		{
 			CurrentWidget = CreateWidget<UUserWidget>(PC, NewWidgetClass);
 			if (CurrentWidget)
@@ -214,4 +214,3 @@ void AMGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)
 		}
 	}
 }
-

@@ -1,12 +1,20 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #pragma once
 
+#include "GameFramework/PlayerController.h"
+#include "ThreeMatchPlayerController.generated.h"
+
+/**
+ * 
+ */
 UCLASS()
-class MATCH_API AMPlayerController : public APlayerController
+class THREEMATCHGAME_API AThreeMatchPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
 
-	AMPlayerController(const FObjectInitializer& ObjectInitializer);
+	AThreeMatchPlayerController(const FObjectInitializer& ObjectInitializer);
 
 	/** Add points. If points are negative or we force immediate update, the score will display instantly instead of counting up. */
 	UFUNCTION(BlueprintCallable, Category = "Game")

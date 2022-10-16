@@ -1,13 +1,10 @@
-#include "BlueprintFunctionLibrary.h"
-
-
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "GameMode.h"
-#include "GameFramework/PlayerState.h"
-#include "Kismet/GameplayStatics.h"
+#include "ThreeMatchBlueprintFunctionLibrary.h"
+#include "ThreeMatchGame.h"
+#include "ThreeMatchGameMode.h"
 
-APlayerController* UMBlueprintFunctionLibrary::GetLocalPlayerController(UObject* WorldContextObject)
+APlayerController* UThreeMatchBlueprintFunctionLibrary::GetLocalPlayerController(UObject* WorldContextObject)
 {
 	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
 	{
@@ -24,7 +21,7 @@ APlayerController* UMBlueprintFunctionLibrary::GetLocalPlayerController(UObject*
 	return nullptr;
 }
 
-FString UMBlueprintFunctionLibrary::GetOnlineAccountID(APlayerController* PlayerController)
+FString UThreeMatchBlueprintFunctionLibrary::GetOnlineAccountID(APlayerController* PlayerController)
 {
 	if (PlayerController && PlayerController->PlayerState && PlayerController->PlayerState->GetUniqueId().IsValid())
 	{
@@ -33,9 +30,9 @@ FString UMBlueprintFunctionLibrary::GetOnlineAccountID(APlayerController* Player
 	return FString();
 }
 
-bool UMBlueprintFunctionLibrary::IsGameActive(UObject* WorldContextObject)
+bool UThreeMatchBlueprintFunctionLibrary::IsGameActive(UObject* WorldContextObject)
 {
-	if (AMGameMode* GameMode = Cast<AMGameMode>(UGameplayStatics::GetGameMode(WorldContextObject)))
+	if (AThreeMatchGameMode* GameMode = Cast<AThreeMatchGameMode>(UGameplayStatics::GetGameMode(WorldContextObject)))
 	{
 		if (GameMode->IsGameActive())
 		{
@@ -45,9 +42,9 @@ bool UMBlueprintFunctionLibrary::IsGameActive(UObject* WorldContextObject)
 	return false;
 }
 
-void UMBlueprintFunctionLibrary::PauseGameTimer(UObject* WorldContextObject, bool bPause)
+void UThreeMatchBlueprintFunctionLibrary::PauseGameTimer(UObject* WorldContextObject, bool bPause)
 {
-	if (AMGameMode* GameMode = Cast<AMGameMode>(UGameplayStatics::GetGameMode(WorldContextObject)))
+	if (AThreeMatchGameMode* GameMode = Cast<AThreeMatchGameMode>(UGameplayStatics::GetGameMode(WorldContextObject)))
 	{
 		GameMode->PauseGameTimer(bPause);
 	}
