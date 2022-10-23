@@ -12,7 +12,7 @@ UThreeMatchGameInstance::UThreeMatchGameInstance()
 	DefaultSaveGameSlot = TEXT("_ThreeMatchGame");
 }
 
-bool UThreeMatchGameInstance::FindSaveDataForLevel(UObject* WorldContextObject, FThreeMatchLevelSaveData& OutSaveData)
+bool UThreeMatchGameInstance::FindSaveDataForLevel(UObject* WorldContextObject, FThreeMatchLevelSaveData& OutSaveData) const
 {
 	const FString LevelName = UGameplayStatics::GetCurrentLevelName(WorldContextObject, true);
 	if (FThreeMatchLevelSaveData* FoundData = InstanceGameData->ThreeMatchSaveData.Find(LevelName))

@@ -28,7 +28,7 @@ public:
 	void InitSaveGameSlot();
 
 	/** Load the current saved game, if it exists. */
-	bool FindSaveDataForLevel(UObject* WorldContextObject, FThreeMatchLevelSaveData& OutSaveData);
+	bool FindSaveDataForLevel(UObject* WorldContextObject, FThreeMatchLevelSaveData& OutSaveData) const;
 
 	/** Save our game. All save game data is included. */
 	UFUNCTION(BlueprintCallable, Category = "Saved Game")
